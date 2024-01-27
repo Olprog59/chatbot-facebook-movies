@@ -16,13 +16,14 @@ func init() {
 func main() {
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("GET /{$}", webhookHandler)
-	mux.HandleFunc("POST /{$}", webhookPostHandler)
+	mid := logMiddleware(mux)
+	mux.HandleFunc("GET /chatbot/{$}", webhookHandler)
+	mux.HandleFunc("POST /chatbot/{$}", webhookPostHandler)
 	mux.HandleFunc("GET /privacy-policy", privacyPolicyHandler)
 
 	srv := &http.Server{
 		Addr:    ":8080",
-		Handler: mux,
+		Handler: mid,
 	}
 
 	go func() {
@@ -38,6 +39,13 @@ func main() {
 		log.Println(err)
 		return
 	}
+}
+
+func logMiddleware(mux *http.ServeMux) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Printf("%s %s %s\n", r.RemoteAddr, r.Method, r.URL)
+		mux.ServeHTTP(w, r)
+	})
 }
 
 func webhookPostHandler(w http.ResponseWriter, r *http.Request) {
@@ -131,6 +139,8 @@ func webhookHandler(w http.ResponseWriter, r *http.Request) {
 		log.Printf("failed to write response body: %v", err)
 		return
 	}
+
+	log.Println("Webhook verified")
 
 	return
 }

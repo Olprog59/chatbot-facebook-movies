@@ -66,7 +66,7 @@ func parcours(message string, senderId string) string {
 			err = models.SendRequestNocoDB(movie)
 			if err != nil {
 				sendError(senderId)
-				log.Println(err)
+				log.Printf("%+v\n", err)
 				return ""
 			}
 			log.Println("The end !")

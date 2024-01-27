@@ -20,6 +20,9 @@ FROM scratch
 # Copie l'exécutable depuis l'étape de build
 COPY --from=builder /app/main .
 
+# Copie les certificats CA
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+
 # Définis les variables d'environnement nécessaires
 ENV WEBHOOK_TOKEN=your_webhook_token
 ENV FB_TOKEN=your_fb_token
